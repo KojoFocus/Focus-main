@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+
 import Header from "../components/Header";
 import SearchBar from "../components/SearchBar";
 import { motion } from "framer-motion";
@@ -20,77 +20,36 @@ interface ProductsPageProps {
 const products: Product[] = [
   {
     id: 1,
-    name: "Golden Blossom Honey",
-    price: "Ghc 100",
+    name: "Raw Honey - 500ml",
+    price: "Ghc 50",
     image: "/images/hero1.png",
-    alt: "Golden Blossom Honey",
+    alt: "Raw Honey",
     quantity: 0,
   },
   {
     id: 2,
-    name: "Wild Forest Honey",
-    price: "Ghc 120",
+    name: "Ginger Infused Honey",
+    price: "Ghc 60",
     image: "/images/p2.png",
-    alt: "Wild Forest Honey",
+    alt: "Ginger Honey",
     quantity: 0,
   },
   {
     id: 3,
-    name: "Organic Acacia Honey",
-    price: "Ghc 100",
-    image: "/images/hero1.png",
-    alt: "Organic Acacia Honey",
-    quantity: 0,
-  },
-  {
-    id: 4,
-    name: "Manuka Blend Honey",
-    price: "Ghc 120",
+    name: "Hibiscus Honey - 250ml",
+    price: "Ghc 45",
     image: "/images/p2.png",
-    alt: "Manuka Blend Honey",
-    quantity: 0,
-  },
-  {
-    id: 5,
-    name: "Sunflower Creamed Honey",
-    price: "Ghc 100",
-    image: "/images/hero1.png",
-    alt: "Sunflower Creamed Honey",
-    quantity: 0,
-  },
-  {
-    id: 6,
-    name: "Tropical Wildflower Honey",
-    price: "Ghc 120",
-    image: "/images/p2.png",
-    alt: "Tropical Wildflower Honey",
-    quantity: 0,
-  },
-  {
-    id: 7,
-    name: "Premium Clover Honey",
-    price: "Ghc 100",
-    image: "/images/hero1.png",
-    alt: "Premium Clover Honey",
-    quantity: 0,
-  },
-  {
-    id: 8,
-    name: "Buckwheat Dark Honey",
-    price: "Ghc 120",
-    image: "/images/p2.png",
-    alt: "Buckwheat Dark Honey",
+    alt: "Hibiscus Honey",
     quantity: 0,
   },
 ];
 
 const ProductsPage = ({ addToCart }: ProductsPageProps) => {
-  const navigate = useNavigate();
   const [filteredProducts, setFilteredProducts] = useState(products);
-  const [activeNotification, setActiveNotification] = useState<{
-    productId: number | null;
-    message: string;
-  }>({ productId: null, message: "" });
+  const [cartCountMap, setCartCountMap] = useState<{ [key: number]: number }>(
+    {}
+  );
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const handleSearch = (query: string) => {
     const filtered = products.filter((product) =>
@@ -108,14 +67,11 @@ const ProductsPage = ({ addToCart }: ProductsPageProps) => {
 
   const handleAddToCart = (product: Product) => {
     addToCart(product);
-    setActiveNotification({
-      productId: product.id,
-      message: `1 ${product.name} added to cart!`,
-    });
+    const newCount = (cartCountMap[product.id] || 0) + 1;
+    setCartCountMap({ ...cartCountMap, [product.id]: newCount });
 
-    setTimeout(() => {
-      setActiveNotification({ productId: null, message: "" });
-    }, 3000);
+    setToastMessage(`${newCount} ${product.name} added to cart!`);
+    setTimeout(() => setToastMessage(null), 3000);
   };
 
   return (
@@ -125,8 +81,23 @@ const ProductsPage = ({ addToCart }: ProductsPageProps) => {
       transition={{ duration: 1.2 }}
       className="bg-gradient-to-b from-[#4f4f4f] to-[#2f2f2f] text-white min-h-screen pb-24 relative"
     >
+      {/* Toast Badge */}
+      {toastMessage && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.4 }}
+          className="fixed top-5 right-5 bg-[#f5d08c] text-gray-900 px-4 py-2 rounded-md shadow-lg z-50 text-sm font-medium"
+        >
+          {toastMessage}
+        </motion.div>
+      )}
+
       <header className="relative z-40 pb-4">
-        <Header cartCount={0} />
+        <Header
+          cartCount={Object.values(cartCountMap).reduce((a, b) => a + b, 0)}
+        />
       </header>
 
       <SearchBar onSearch={handleSearch} />
@@ -174,23 +145,6 @@ const ProductsPage = ({ addToCart }: ProductsPageProps) => {
                     </div>
                   </div>
                 </div>
-
-                {activeNotification.productId === product.id && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4 }}
-                    className="mt-2 bg-[#f5d08c] text-gray-900 px-4 py-2 rounded-md shadow flex items-center justify-between text-sm font-medium"
-                  >
-                    <span>{activeNotification.message}</span>
-                    <button
-                      onClick={() => navigate("/cart")}
-                      className="ml-4 underline hover:text-gray-700"
-                    >
-                      View Cart
-                    </button>
-                  </motion.div>
-                )}
               </motion.div>
             ))
           ) : (

@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 type CartItem = {
   id: number;
@@ -20,6 +21,8 @@ const CartPage = ({
   removeFromCart,
   updateQuantity,
 }: CartPageProps) => {
+  const navigate = useNavigate();
+
   const calculateTotal = (): number => {
     return cartItems.reduce(
       (total, item) =>
@@ -116,24 +119,13 @@ const CartPage = ({
                 <span>Ghc {calculateTotal()}</span>
               </li>
             </ul>
+
             <div className="mt-6 text-center">
               <button
                 className="inline-flex items-center bg-[#f5d08c] hover:bg-yellow-500 text-gray-900 font-semibold px-6 py-3 rounded-md transition"
-                onClick={() => {
-                  const phoneNumber = "+233540484052";
-                  let message = `Hello! I want:\n\n`;
-                  cartItems.forEach((item) => {
-                    message += `${item.quantity} x ${item.name}\n`;
-                  });
-                  message += `\nTotal: Ghc ${calculateTotal()}\n\n`;
-                  message += "Delivery Address: \nContact Number: ";
-                  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
-                    message
-                  )}`;
-                  window.open(whatsappUrl, "_blank");
-                }}
+                onClick={() => navigate("/checkout")}
               >
-                Checkout
+                Proceed to Checkout
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="w-4 h-4 ml-2"

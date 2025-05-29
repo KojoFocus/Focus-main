@@ -19,6 +19,7 @@ import HoneyProcessing from "./Pages/HoneyProcessing";
 import TrainingEducation from "./Pages/TrainingEducation";
 import HivesManagement from "./Pages/HivesManagement";
 import CartPage from "./Pages/CartPage";
+import CheckoutPage from "./Pages/CheckoutPage";
 
 export type Product = {
   id: number;
@@ -69,6 +70,7 @@ const AnimatedRoutes = ({
               />
             }
           />
+          <Route path="/checkout" element={<CheckoutPage cartItems={cart} />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route
             path="/sustainable-beekeeping"
@@ -113,10 +115,12 @@ const App = () => {
     );
   };
 
+  const totalCartQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
+
   return (
     <Router>
       <div className="flex flex-col min-h-screen bg-[#2f2f2f] text-white">
-        <Header cartCount={cart.length} />
+        <Header cartCount={totalCartQuantity} />
         <main className="flex-grow pt-20">
           <AnimatedRoutes
             cart={cart}

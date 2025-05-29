@@ -36,16 +36,15 @@ const Header = ({ cartCount }: HeaderProps) => {
       }`}
     >
       <nav className="flex items-center justify-between px-6 py-4 lg:px-12">
-        {/* Left: Menu */}
+        {/* Menu */}
         <button
           onClick={() => setIsSidebarOpen(true)}
           className="p-2 text-white hover:bg-white/10 rounded-md transition"
         >
           <Bars3Icon className="h-6 w-6" />
-          <span className="sr-only">Menu</span>
         </button>
 
-        {/* Center: Logo */}
+        {/* Logo */}
         <Link to="/" className="flex-1 flex justify-center">
           <img
             src="/images/logo.png"
@@ -56,7 +55,7 @@ const Header = ({ cartCount }: HeaderProps) => {
           />
         </Link>
 
-        {/* Right: Cart */}
+        {/* Cart Icon */}
         <div className="relative">
           <Link
             to="/cart"
@@ -72,11 +71,10 @@ const Header = ({ cartCount }: HeaderProps) => {
         </div>
       </nav>
 
-      {/* Sidebar & Overlay */}
+      {/* Sidebar */}
       <AnimatePresence>
         {isSidebarOpen && (
           <>
-            {/* Sidebar */}
             <motion.aside
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
@@ -111,7 +109,6 @@ const Header = ({ cartCount }: HeaderProps) => {
                     );
                   }
                 )}
-
                 <Link
                   to="/products"
                   onClick={() => setIsSidebarOpen(false)}
