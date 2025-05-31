@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import SearchBar from "../components/SearchBar";
 import { motion } from "framer-motion";
@@ -45,6 +45,7 @@ const products: Product[] = [
 ];
 
 const ProductsPage = ({ addToCart }: ProductsPageProps) => {
+  const navigate = useNavigate();
   const [filteredProducts, setFilteredProducts] = useState(products);
   const [cartCountMap, setCartCountMap] = useState<{ [key: number]: number }>(
     {}
@@ -58,13 +59,6 @@ const ProductsPage = ({ addToCart }: ProductsPageProps) => {
     setFilteredProducts(filtered);
   };
 
-  const redirectToWhatsApp = (productName: string) => {
-    const message = encodeURIComponent(
-      `Hello! I want ${productName}.\n\nQuantity: \nDelivery Address: \nContact Number: `
-    );
-    window.open(`https://wa.me/+233540484052?text=${message}`, "_blank");
-  };
-
   const handleAddToCart = (product: Product) => {
     addToCart(product);
     const newCount = (cartCountMap[product.id] || 0) + 1;
@@ -72,6 +66,11 @@ const ProductsPage = ({ addToCart }: ProductsPageProps) => {
 
     setToastMessage(`${newCount} ${product.name} added to cart!`);
     setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const handleBuyNow = (product: Product) => {
+    addToCart(product);
+    navigate("/checkout");
   };
 
   return (
@@ -130,7 +129,7 @@ const ProductsPage = ({ addToCart }: ProductsPageProps) => {
                       </p>
                       <div className="mt-4 flex flex-wrap gap-3">
                         <button
-                          onClick={() => redirectToWhatsApp(product.name)}
+                          onClick={() => handleBuyNow(product)}
                           className="bg-[#f5d08c] hover:bg-yellow-500 text-gray-900 font-semibold text-sm px-4 py-2 rounded-md transition"
                         >
                           Buy Now
