@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -24,9 +24,7 @@ import LoginPage from "./Pages/LoginPage";
 import MyOrdersPage from "./Pages/MyOrdersPage";
 import SignupPage from "./Pages/SignupPage";
 
-import { getAuth } from "firebase/auth";
-
-export type Product = {
+export type CartItem = {
   id: number;
   name: string;
   price: string;
@@ -40,13 +38,13 @@ const AnimatedRoutes = ({
   addToCart,
   removeFromCart,
   updateQuantity,
-  setCartItems,
+  setCart,
 }: {
-  cart: Product[];
-  addToCart: (product: Product) => void;
+  cart: CartItem[];
+  addToCart: (product: CartItem) => void;
   removeFromCart: (id: number) => void;
   updateQuantity: (id: number, qty: number) => void;
-  setCartItems: React.Dispatch<React.SetStateAction<Product[]>>;
+  setCart: React.Dispatch<React.SetStateAction<CartItem[]>>;
 }) => {
   const location = useLocation();
 
@@ -79,9 +77,7 @@ const AnimatedRoutes = ({
           />
           <Route
             path="/checkout"
-            element={
-              <CheckoutPage cartItems={cart} setCartItems={setCartItems} />
-            }
+            element={<CheckoutPage cartItems={cart} setCartItems={setCart} />}
           />
           <Route path="/contact" element={<ContactPage />} />
           <Route
@@ -107,36 +103,36 @@ const AnimatedRoutes = ({
 };
 
 const App = () => {
-  const auth = getAuth();
-  const userId = auth.currentUser?.uid || "guest";
-
-  const [cart, setCart] = useState<Product[]>(() => {
-    const saved = localStorage.getItem(`focusCart-${userId}`);
-    return saved ? JSON.parse(saved) : [];
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    const stored = localStorage.getItem("focus_cart");
+    return stored ? JSON.parse(stored) : [];
   });
 
   useEffect(() => {
-    localStorage.setItem(`focusCart-${userId}`, JSON.stringify(cart));
-  }, [cart, userId]);
+    localStorage.setItem("focus_cart", JSON.stringify(cart));
+  }, [cart]);
 
-  const addToCart = (product: Product) => {
-    const index = cart.findIndex((item) => item.id === product.id);
-    if (index !== -1) {
-      const updated = [...cart];
-      updated[index].quantity += 1;
-      setCart(updated);
-    } else {
-      setCart([...cart, { ...product, quantity: 1 }]);
-    }
+  const addToCart = (product: CartItem) => {
+    setCart((prevCart) => {
+      const existing = prevCart.find((item) => item.id === product.id);
+      if (existing) {
+        return prevCart.map((item) =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      }
+      return [...prevCart, { ...product, quantity: 1 }];
+    });
   };
 
   const removeFromCart = (id: number) => {
-    setCart(cart.filter((item) => item.id !== id));
+    setCart((prev) => prev.filter((item) => item.id !== id));
   };
 
   const updateQuantity = (id: number, quantity: number) => {
-    setCart(
-      cart.map((item) => (item.id === id ? { ...item, quantity } : item))
+    setCart((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, quantity } : item))
     );
   };
 
@@ -152,7 +148,7 @@ const App = () => {
             addToCart={addToCart}
             removeFromCart={removeFromCart}
             updateQuantity={updateQuantity}
-            setCartItems={setCart}
+            setCart={setCart}
           />
         </main>
         <Footer />
