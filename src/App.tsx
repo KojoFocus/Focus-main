@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -24,6 +24,8 @@ import LoginPage from "./Pages/LoginPage";
 import MyOrdersPage from "./Pages/MyOrdersPage";
 import SignupPage from "./Pages/SignupPage";
 
+import { getAuth } from "firebase/auth";
+
 export type Product = {
   id: number;
   name: string;
@@ -44,7 +46,7 @@ const AnimatedRoutes = ({
   addToCart: (product: Product) => void;
   removeFromCart: (id: number) => void;
   updateQuantity: (id: number, qty: number) => void;
-  setCartItems: React.Dispatch<React.SetStateAction<Product[]>>; // ✅ added type
+  setCartItems: React.Dispatch<React.SetStateAction<Product[]>>;
 }) => {
   const location = useLocation();
 
@@ -79,7 +81,7 @@ const AnimatedRoutes = ({
             path="/checkout"
             element={
               <CheckoutPage cartItems={cart} setCartItems={setCartItems} />
-            } // ✅ fixed
+            }
           />
           <Route path="/contact" element={<ContactPage />} />
           <Route
@@ -105,7 +107,17 @@ const AnimatedRoutes = ({
 };
 
 const App = () => {
-  const [cart, setCart] = useState<Product[]>([]);
+  const auth = getAuth();
+  const userId = auth.currentUser?.uid || "guest";
+
+  const [cart, setCart] = useState<Product[]>(() => {
+    const saved = localStorage.getItem(`focusCart-${userId}`);
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem(`focusCart-${userId}`, JSON.stringify(cart));
+  }, [cart, userId]);
 
   const addToCart = (product: Product) => {
     const index = cart.findIndex((item) => item.id === product.id);
@@ -140,7 +152,7 @@ const App = () => {
             addToCart={addToCart}
             removeFromCart={removeFromCart}
             updateQuantity={updateQuantity}
-            setCartItems={setCart} // ✅ passed down
+            setCartItems={setCart}
           />
         </main>
         <Footer />

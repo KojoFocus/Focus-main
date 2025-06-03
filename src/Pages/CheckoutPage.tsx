@@ -30,6 +30,7 @@ const CheckoutPage = ({ cartItems, setCartItems }: CheckoutPageProps) => {
 
   const auth = getAuth();
   const user = auth.currentUser;
+  const userId = user?.uid || "guest";
 
   const totalPrice = cartItems.reduce(
     (sum, item) =>
@@ -44,7 +45,7 @@ const CheckoutPage = ({ cartItems, setCartItems }: CheckoutPageProps) => {
     }
 
     const orderPayload = {
-      userId: user?.uid || "guest",
+      userId,
       orderItems: cartItems.map((item) => ({
         name: item.name,
         qty: item.quantity,
@@ -69,7 +70,7 @@ const CheckoutPage = ({ cartItems, setCartItems }: CheckoutPageProps) => {
 
       // ✅ Clear cart
       setCartItems([]);
-      localStorage.removeItem("cartItems");
+      localStorage.removeItem(`focusCart-${userId}`);
 
       navigate("/my-orders");
     } catch (err) {
