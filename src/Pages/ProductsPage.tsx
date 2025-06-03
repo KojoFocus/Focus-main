@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "../components/Header";
+
 import SearchBar from "../components/SearchBar";
 import { motion } from "framer-motion";
 
@@ -92,12 +92,6 @@ const ProductsPage = ({ addToCart }: ProductsPageProps) => {
           {toastMessage}
         </motion.div>
       )}
-
-      <header className="relative z-40 pb-4">
-        <Header
-          cartCount={Object.values(cartCountMap).reduce((a, b) => a + b, 0)}
-        />
-      </header>
 
       <SearchBar onSearch={handleSearch} />
 
