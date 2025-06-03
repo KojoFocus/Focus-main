@@ -58,8 +58,8 @@ const Header = ({ cartCount }: HeaderProps) => {
           : "bg-transparent backdrop-blur-md"
       }`}
     >
-      <nav className="flex items-center justify-between px-6 py-4 lg:px-12">
-        {/* Menu */}
+      <nav className="relative flex items-center justify-between px-6 py-4 lg:px-12">
+        {/* Left: Menu */}
         <button
           onClick={() => setIsSidebarOpen(true)}
           className="p-2 text-white hover:bg-white/10 rounded-md transition"
@@ -67,20 +67,22 @@ const Header = ({ cartCount }: HeaderProps) => {
           <Bars3Icon className="h-6 w-6" />
         </button>
 
-        {/* Logo */}
-        <Link to="/" className="flex-1 flex justify-center">
-          <img
-            src="/images/logo.png"
-            alt="Focus Honey Logo"
-            className={`transition-all duration-300 ${
-              hasScrolled ? "h-12" : "h-16"
-            }`}
-          />
-        </Link>
+        {/* Center: Logo with breathing space */}
+        <div className="absolute left-1/2 transform -translate-x-1/2 pt-4 pb-1">
+          <Link to="/" className="inline-block">
+            <img
+              src="/images/logo.png"
+              alt="Focus Honey Logo"
+              className={`transition-all duration-300 ${
+                hasScrolled ? "h-12" : "h-16"
+              }`}
+            />
+          </Link>
+        </div>
 
-        {/* Right icons */}
+        {/* Right: Cart & User */}
         <div className="flex items-center gap-3">
-          {/* Cart Icon */}
+          {/* Cart */}
           <div className="relative">
             <Link
               to="/cart"
