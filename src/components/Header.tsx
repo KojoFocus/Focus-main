@@ -6,6 +6,7 @@ import {
   ShoppingCartIcon,
 } from "@heroicons/react/24/outline";
 import { AnimatePresence, motion } from "framer-motion";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 interface HeaderProps {
   cartCount: number;
@@ -14,6 +15,9 @@ interface HeaderProps {
 const Header = ({ cartCount }: HeaderProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [hasScrolled, setHasScrolled] = useState(false);
+  const [userInitials, setUserInitials] = useState<string | null>(null);
+
+  const auth = getAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -26,6 +30,25 @@ const Header = ({ cartCount }: HeaderProps) => {
   useEffect(() => {
     document.body.style.overflow = isSidebarOpen ? "hidden" : "auto";
   }, [isSidebarOpen]);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const initials = user.displayName
+          ? user.displayName
+              .split(" ")
+              .map((n) => n[0])
+              .join("")
+              .toUpperCase()
+          : user.email?.[0].toUpperCase() || "?";
+        setUserInitials(initials);
+      } else {
+        setUserInitials(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [auth]);
 
   return (
     <header
@@ -55,19 +78,29 @@ const Header = ({ cartCount }: HeaderProps) => {
           />
         </Link>
 
-        {/* Cart Icon */}
-        <div className="relative">
-          <Link
-            to="/cart"
-            className="p-2 text-white hover:bg-white/10 rounded-md inline-flex transition"
-          >
-            <ShoppingCartIcon className="h-6 w-6" />
-            {cartCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-[#f5d08c] text-gray-900 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-md">
-                {cartCount}
-              </span>
-            )}
-          </Link>
+        {/* Right icons */}
+        <div className="flex items-center gap-3">
+          {/* Cart Icon */}
+          <div className="relative">
+            <Link
+              to="/cart"
+              className="p-2 text-white hover:bg-white/10 rounded-md inline-flex transition"
+            >
+              <ShoppingCartIcon className="h-6 w-6" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 bg-[#f5d08c] text-gray-900 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-md">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+          </div>
+
+          {/* User Initials */}
+          {userInitials && (
+            <div className="bg-[#f5d08c] text-gray-900 font-bold rounded-full h-8 w-8 flex items-center justify-center shadow-md text-sm uppercase">
+              {userInitials}
+            </div>
+          )}
         </div>
       </nav>
 
@@ -93,22 +126,23 @@ const Header = ({ cartCount }: HeaderProps) => {
                 </button>
               </div>
               <div className="p-4 space-y-3">
-                {["Home", "About", "Products", "Cart", "Contact"].map(
-                  (item) => {
-                    const path =
-                      item === "Home" ? "/" : `/${item.toLowerCase()}`;
-                    return (
-                      <Link
-                        key={item}
-                        to={path}
-                        onClick={() => setIsSidebarOpen(false)}
-                        className="block px-4 py-2 rounded-md text-white font-medium hover:bg-white/10 transition"
-                      >
-                        {item}
-                      </Link>
-                    );
-                  }
-                )}
+                {[
+                  { name: "Home", path: "/" },
+                  { name: "About", path: "/about" },
+                  { name: "Products", path: "/products" },
+                  { name: "Cart", path: "/cart" },
+                  { name: "My Orders", path: "/my-orders" }, // ✅ ADDED
+                  { name: "Contact", path: "/contact" },
+                ].map(({ name, path }) => (
+                  <Link
+                    key={name}
+                    to={path}
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="block px-4 py-2 rounded-md text-white font-medium hover:bg-white/10 transition"
+                  >
+                    {name}
+                  </Link>
+                ))}
                 <Link
                   to="/products"
                   onClick={() => setIsSidebarOpen(false)}

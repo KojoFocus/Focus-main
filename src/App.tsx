@@ -20,6 +20,9 @@ import TrainingEducation from "./Pages/TrainingEducation";
 import HivesManagement from "./Pages/HivesManagement";
 import CartPage from "./Pages/CartPage";
 import CheckoutPage from "./Pages/CheckoutPage";
+import LoginPage from "./Pages/LoginPage";
+import MyOrdersPage from "./Pages/MyOrdersPage";
+import SignupPage from "./Pages/SignupPage";
 
 export type Product = {
   id: number;
@@ -35,11 +38,13 @@ const AnimatedRoutes = ({
   addToCart,
   removeFromCart,
   updateQuantity,
+  setCartItems,
 }: {
   cart: Product[];
   addToCart: (product: Product) => void;
   removeFromCart: (id: number) => void;
   updateQuantity: (id: number, qty: number) => void;
+  setCartItems: React.Dispatch<React.SetStateAction<Product[]>>; // ✅ added type
 }) => {
   const location = useLocation();
 
@@ -70,7 +75,12 @@ const AnimatedRoutes = ({
               />
             }
           />
-          <Route path="/checkout" element={<CheckoutPage cartItems={cart} />} />
+          <Route
+            path="/checkout"
+            element={
+              <CheckoutPage cartItems={cart} setCartItems={setCartItems} />
+            } // ✅ fixed
+          />
           <Route path="/contact" element={<ContactPage />} />
           <Route
             path="/sustainable-beekeeping"
@@ -85,6 +95,9 @@ const AnimatedRoutes = ({
             element={<TrainingEducation />}
           />
           <Route path="/hives-management" element={<HivesManagement />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/my-orders" element={<MyOrdersPage />} />
+          <Route path="/signup" element={<SignupPage />} />
         </Routes>
       </motion.div>
     </AnimatePresence>
@@ -127,6 +140,7 @@ const App = () => {
             addToCart={addToCart}
             removeFromCart={removeFromCart}
             updateQuantity={updateQuantity}
+            setCartItems={setCart} // ✅ passed down
           />
         </main>
         <Footer />
