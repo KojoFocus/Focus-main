@@ -44,15 +44,36 @@ const MyOrdersPage = () => {
   };
 
   const generatePDF = (order: Order) => {
-    const doc = new jsPDF();
+    const doc = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: [105, 148], // A6 size
+    });
 
-    const displayName = user?.displayName || "Customer"; // fallback if no name
+    const userName = user?.displayName || user?.email || "Customer";
 
-    doc.text("Focus Honey - Order Receipt", 14, 20);
-    doc.text(`Customer Name: ${displayName}`, 14, 30);
-    doc.text(`Order ID: ${order.id}`, 14, 40);
-    doc.text(`Date: ${new Date(order.createdAt).toLocaleString()}`, 14, 50);
+    // Set background
+    doc.setFillColor(47, 47, 47); // #2f2f2f dark gray
+    doc.rect(0, 0, 105, 148, "F"); // fill whole A6 page
 
+    // Add Logo
+    const img = new Image();
+    img.src = "/logo.png"; // must be in /public folder
+    doc.addImage(img, "PNG", 8, 8, 25, 25);
+
+    // Header
+    doc.setTextColor("#f5d08c"); // soft gold
+    doc.setFontSize(14);
+    doc.text("Focus Honey - Receipt", 38, 18);
+
+    // Customer & Order Info
+    doc.setFontSize(9);
+    doc.setTextColor(255, 255, 255); // white
+    doc.text(`Customer: ${userName}`, 8, 40);
+    doc.text(`Order ID: ${order.id.slice(-6).toUpperCase()}`, 8, 46);
+    doc.text(`Date: ${new Date(order.createdAt).toLocaleString()}`, 8, 52);
+
+    // Order Items Table
     const items = order.orderItems.map((item) => [
       item.name,
       item.qty.toString(),
@@ -60,21 +81,44 @@ const MyOrdersPage = () => {
     ]);
 
     autoTable(doc, {
-      head: [["Item", "Quantity", "Price"]],
+      startY: 58,
+      head: [["Item", "Qty", "Price"]],
       body: items,
-      startY: 60,
+      theme: "grid",
+      styles: {
+        fontSize: 8,
+        textColor: [255, 255, 255], // white text
+        fillColor: [60, 60, 60], // dark rows
+      },
+      headStyles: {
+        fillColor: [245, 208, 140], // #f5d08c
+        textColor: [0, 0, 0], // black
+      },
+      alternateRowStyles: {
+        fillColor: [50, 50, 50],
+      },
+      tableLineColor: [200, 200, 200],
+      tableLineWidth: 0.1,
+      margin: { left: 8, right: 8 },
     });
 
-    const extendedDoc = doc as jsPDFWithPlugin;
-    const finalY = extendedDoc.lastAutoTable?.finalY || 90;
+    const finalY = (doc as jsPDFWithPlugin).lastAutoTable?.finalY || 100;
 
-    doc.text(`Total: Ghc ${order.totalPrice.toFixed(2)}`, 14, finalY + 10);
+    // Total
+    doc.setFontSize(10);
+    doc.setTextColor("#f5d08c");
+    doc.text(`Total: Ghc ${order.totalPrice.toFixed(2)}`, 8, finalY + 8);
 
-    doc.save(
-      `FocusHoney_${displayName.replace(/\s/g, "_")}_Order_${order.id.slice(
-        -6
-      )}.pdf`
-    );
+    // Footer Contact
+    doc.setFontSize(7);
+    doc.setTextColor(180, 180, 180); // muted gray
+    doc.text("Focus Honey · Accra, Ghana", 8, finalY + 20);
+    doc.text("Phone: +233 24 123 4567", 8, finalY + 25);
+    doc.text("Email: info@focushoney.com", 8, finalY + 30);
+    doc.text("Thank you for your order!", 8, finalY + 38);
+
+    // Save
+    doc.save(`FocusHoney_${order.id.slice(-6)}.pdf`);
   };
 
   useEffect(() => {
