@@ -1,3 +1,4 @@
+// src/App.tsx
 import { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
@@ -102,14 +103,11 @@ const AnimatedRoutes = ({
 
 const App = () => {
   const [cart, setCart] = useState<Product[]>([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const auth = getAuth();
 
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setIsLoggedIn(!!user);
-
       if (user) {
         const cartRef = doc(db, "carts", user.uid);
         const snapshot = await getDoc(cartRef);
@@ -118,7 +116,8 @@ const App = () => {
           : [];
         setCart(firebaseCart);
       } else {
-        setCart([]);
+        const local = localStorage.getItem("guestCart");
+        setCart(local ? JSON.parse(local) : []);
       }
     });
 
@@ -131,6 +130,8 @@ const App = () => {
     if (user) {
       const cartRef = doc(db, "carts", user.uid);
       setDoc(cartRef, { items: cart });
+    } else {
+      localStorage.setItem("guestCart", JSON.stringify(cart));
     }
   }, [cart]);
 
@@ -158,9 +159,10 @@ const App = () => {
     );
   };
 
-  const totalCartQuantity = isLoggedIn
-    ? cart.reduce((sum, item) => sum + item.quantity, 0)
-    : 0;
+  const totalCartQuantity = cart.reduce(
+    (sum, item) => sum + (item.quantity || 0),
+    0
+  );
 
   return (
     <Router>
