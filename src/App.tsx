@@ -9,6 +9,7 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import { Product } from "./types";
 
 import HomePage from "./Pages/Home";
 import AboutPage from "./Pages/About";
@@ -24,15 +25,6 @@ import LoginPage from "./Pages/LoginPage";
 import MyOrdersPage from "./Pages/MyOrdersPage";
 import SignupPage from "./Pages/SignupPage";
 
-export type CartItem = {
-  id: number;
-  name: string;
-  price: string;
-  image: string;
-  alt: string;
-  quantity: number;
-};
-
 const AnimatedRoutes = ({
   cart,
   addToCart,
@@ -40,11 +32,11 @@ const AnimatedRoutes = ({
   updateQuantity,
   setCart,
 }: {
-  cart: CartItem[];
-  addToCart: (product: CartItem) => void;
+  cart: Product[];
+  addToCart: (product: Product) => void;
   removeFromCart: (id: number) => void;
   updateQuantity: (id: number, qty: number) => void;
-  setCart: React.Dispatch<React.SetStateAction<CartItem[]>>;
+  setCart: React.Dispatch<React.SetStateAction<Product[]>>;
 }) => {
   const location = useLocation();
 
@@ -103,7 +95,7 @@ const AnimatedRoutes = ({
 };
 
 const App = () => {
-  const [cart, setCart] = useState<CartItem[]>(() => {
+  const [cart, setCart] = useState<Product[]>(() => {
     const stored = localStorage.getItem("focus_cart");
     return stored ? JSON.parse(stored) : [];
   });
@@ -112,7 +104,7 @@ const App = () => {
     localStorage.setItem("focus_cart", JSON.stringify(cart));
   }, [cart]);
 
-  const addToCart = (product: CartItem) => {
+  const addToCart = (product: Product) => {
     setCart((prevCart) => {
       const existing = prevCart.find((item) => item.id === product.id);
       if (existing) {

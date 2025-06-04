@@ -14,7 +14,7 @@ const SearchBar = ({ onSearch }: SearchBarProps) => {
   };
 
   return (
-    <div className="mt-12 px-6 pt-20">
+    <div className="mt-0 px-6 pt-20">
       <div className="relative rounded-md shadow-sm">
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
           <svg

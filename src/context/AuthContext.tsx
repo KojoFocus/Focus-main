@@ -1,3 +1,4 @@
+// src/context/AuthContext.tsx
 import {
   createContext,
   useContext,
@@ -9,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 
 export interface User {
   token: string;
-  // add other user info if needed
+  uid?: string; // ✅ Add UID support for Firebase
 }
 
 interface AuthContextType {

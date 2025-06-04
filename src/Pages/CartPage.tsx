@@ -1,17 +1,9 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-
-type CartItem = {
-  id: number;
-  name: string;
-  price: string;
-  image: string;
-  alt: string;
-  quantity: number;
-};
+import type { Product } from "../types";
 
 interface CartPageProps {
-  cartItems: CartItem[];
+  cartItems: Product[];
   removeFromCart: (id: number) => void;
   updateQuantity: (id: number, quantity: number) => void;
 }
@@ -23,10 +15,16 @@ const CartPage = ({
 }: CartPageProps) => {
   const navigate = useNavigate();
 
+  const getNumericPrice = (price: string | number): number => {
+    if (typeof price === "string") {
+      return parseFloat(price.replace("Ghc", "").trim());
+    }
+    return price;
+  };
+
   const calculateTotal = (): number => {
     return cartItems.reduce(
-      (total, item) =>
-        total + parseFloat(item.price.replace("Ghc ", "")) * item.quantity,
+      (total, item) => total + getNumericPrice(item.price) * item.quantity,
       0
     );
   };
@@ -56,7 +54,7 @@ const CartPage = ({
                   <div className="text-left w-full">
                     <h3 className="text-lg font-semibold mb-1">{item.name}</h3>
                     <p className="text-[#f5d08c] font-semibold text-base">
-                      Price: Ghc {parseFloat(item.price.replace("Ghc ", ""))}
+                      Price: Ghc {getNumericPrice(item.price)}
                     </p>
                     <div className="mt-4 flex items-center flex-wrap gap-3">
                       <button
@@ -108,10 +106,7 @@ const CartPage = ({
               {cartItems.map((item) => (
                 <li key={item.id} className="flex justify-between">
                   <span>{item.name}</span>
-                  <span>
-                    Ghc{" "}
-                    {parseFloat(item.price.replace("Ghc ", "")) * item.quantity}
-                  </span>
+                  <span>Ghc {getNumericPrice(item.price) * item.quantity}</span>
                 </li>
               ))}
               <li className="flex justify-between font-bold border-t border-[#f5d08c]/40 pt-4">

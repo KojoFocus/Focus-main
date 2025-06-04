@@ -4,19 +4,12 @@ import { motion } from "framer-motion";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
 import { getAuth } from "firebase/auth";
-
-type CartItem = {
-  id: number;
-  name: string;
-  price: string;
-  image: string;
-  alt: string;
-  quantity: number;
-};
+import { clearCartInFirebase } from "../utils/firebaseCart";
+import type { Product } from "../types";
 
 interface CheckoutPageProps {
-  cartItems: CartItem[];
-  setCartItems: React.Dispatch<React.SetStateAction<CartItem[]>>;
+  cartItems: Product[];
+  setCartItems: React.Dispatch<React.SetStateAction<Product[]>>;
 }
 
 const CheckoutPage = ({ cartItems, setCartItems }: CheckoutPageProps) => {
@@ -32,11 +25,13 @@ const CheckoutPage = ({ cartItems, setCartItems }: CheckoutPageProps) => {
   const user = auth.currentUser;
   const userId = user?.uid || "guest";
 
-  const totalPrice = cartItems.reduce(
-    (sum, item) =>
-      sum + parseFloat(item.price.replace("Ghc ", "")) * item.quantity,
-    0
-  );
+  const totalPrice = cartItems.reduce((sum, item) => {
+    const price =
+      typeof item.price === "string"
+        ? parseFloat(item.price.replace("Ghc ", ""))
+        : item.price;
+    return sum + price * item.quantity;
+  }, 0);
 
   const handleSubmit = async () => {
     if (!name || !phone || !address) {
@@ -49,7 +44,10 @@ const CheckoutPage = ({ cartItems, setCartItems }: CheckoutPageProps) => {
       orderItems: cartItems.map((item) => ({
         name: item.name,
         qty: item.quantity,
-        price: parseFloat(item.price.replace("Ghc ", "")),
+        price:
+          typeof item.price === "string"
+            ? parseFloat(item.price.replace("Ghc ", ""))
+            : item.price,
         image: item.image,
         product: item.id,
       })),
@@ -67,11 +65,9 @@ const CheckoutPage = ({ cartItems, setCartItems }: CheckoutPageProps) => {
     try {
       await addDoc(collection(db, "orders"), orderPayload);
       alert("Order placed successfully!");
-
-      // ✅ Clear cart
       setCartItems([]);
+      await clearCartInFirebase(userId);
       localStorage.removeItem(`focusCart-${userId}`);
-
       navigate("/my-orders");
     } catch (err) {
       console.error(err);
