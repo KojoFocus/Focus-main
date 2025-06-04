@@ -48,7 +48,7 @@ const Header = ({ cartCount }: HeaderProps) => {
     });
 
     return () => unsubscribe();
-  }, [auth]);
+  }, [auth]); // ✅ ESLint warning resolved
 
   return (
     <header
@@ -67,7 +67,7 @@ const Header = ({ cartCount }: HeaderProps) => {
           <Bars3Icon className="h-6 w-6" />
         </button>
 
-        {/* Center: Logo with breathing space */}
+        {/* Center: Logo */}
         <div className="absolute left-1/2 transform -translate-x-1/2 pt-4 pb-1">
           <Link to="/" className="inline-block">
             <img
@@ -80,29 +80,19 @@ const Header = ({ cartCount }: HeaderProps) => {
           </Link>
         </div>
 
-        {/* Right: Cart & User */}
-        <div className="flex items-center gap-3">
-          {/* Cart */}
-          <div className="relative">
-            <Link
-              to="/cart"
-              className="p-2 text-white hover:bg-white/10 rounded-md inline-flex transition"
-            >
-              <ShoppingCartIcon className="h-6 w-6" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-[#f5d08c] text-gray-900 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-md">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
-          </div>
-
-          {/* User Initials */}
-          {userInitials && (
-            <div className="bg-[#f5d08c] text-gray-900 font-bold rounded-full h-8 w-8 flex items-center justify-center shadow-md text-sm uppercase">
-              {userInitials}
-            </div>
-          )}
+        {/* Cart */}
+        <div className="relative">
+          <Link
+            to="/cart"
+            className="p-2 text-white hover:bg-white/10 rounded-md inline-flex transition"
+          >
+            <ShoppingCartIcon className="h-6 w-6" />
+            {cartCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 bg-[#f5d08c] text-gray-900 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-md">
+                {cartCount}
+              </span>
+            )}
+          </Link>
         </div>
       </nav>
 
@@ -133,7 +123,7 @@ const Header = ({ cartCount }: HeaderProps) => {
                   { name: "About", path: "/about" },
                   { name: "Products", path: "/products" },
                   { name: "Cart", path: "/cart" },
-                  { name: "My Orders", path: "/my-orders" }, // ✅ ADDED
+                  { name: "My Orders", path: "/my-orders" },
                   { name: "Contact", path: "/contact" },
                 ].map(({ name, path }) => (
                   <Link
@@ -145,6 +135,7 @@ const Header = ({ cartCount }: HeaderProps) => {
                     {name}
                   </Link>
                 ))}
+
                 <Link
                   to="/products"
                   onClick={() => setIsSidebarOpen(false)}
@@ -152,10 +143,19 @@ const Header = ({ cartCount }: HeaderProps) => {
                 >
                   Shop Now
                 </Link>
+
+                {userInitials && (
+                  <Link
+                    to="/logout"
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="block text-center mt-2 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-md shadow transition"
+                  >
+                    Logout
+                  </Link>
+                )}
               </div>
             </motion.aside>
 
-            {/* Overlay */}
             <motion.div
               className="fixed inset-0 z-40 bg-black/60"
               initial={{ opacity: 0 }}

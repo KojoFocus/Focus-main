@@ -6,6 +6,8 @@ import {
   useLocation,
 } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -24,6 +26,9 @@ import CheckoutPage from "./Pages/CheckoutPage";
 import LoginPage from "./Pages/LoginPage";
 import MyOrdersPage from "./Pages/MyOrdersPage";
 import SignupPage from "./Pages/SignupPage";
+import LogoutPage from "./Pages/LogoutPage";
+
+const db = getFirestore();
 
 const AnimatedRoutes = ({
   cart,
@@ -88,6 +93,7 @@ const AnimatedRoutes = ({
           <Route path="/login" element={<LoginPage />} />
           <Route path="/my-orders" element={<MyOrdersPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/logout" element={<LogoutPage setCart={setCart} />} />
         </Routes>
       </motion.div>
     </AnimatePresence>
@@ -95,13 +101,37 @@ const AnimatedRoutes = ({
 };
 
 const App = () => {
-  const [cart, setCart] = useState<Product[]>(() => {
-    const stored = localStorage.getItem("focus_cart");
-    return stored ? JSON.parse(stored) : [];
-  });
+  const [cart, setCart] = useState<Product[]>([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem("focus_cart", JSON.stringify(cart));
+    const auth = getAuth();
+
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setIsLoggedIn(!!user);
+
+      if (user) {
+        const cartRef = doc(db, "carts", user.uid);
+        const snapshot = await getDoc(cartRef);
+        const firebaseCart = snapshot.exists()
+          ? snapshot.data().items || []
+          : [];
+        setCart(firebaseCart);
+      } else {
+        setCart([]);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (user) {
+      const cartRef = doc(db, "carts", user.uid);
+      setDoc(cartRef, { items: cart });
+    }
   }, [cart]);
 
   const addToCart = (product: Product) => {
@@ -128,7 +158,9 @@ const App = () => {
     );
   };
 
-  const totalCartQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const totalCartQuantity = isLoggedIn
+    ? cart.reduce((sum, item) => sum + item.quantity, 0)
+    : 0;
 
   return (
     <Router>
