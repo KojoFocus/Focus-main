@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   CheckCircleIcon,
   UsersIcon,
@@ -10,6 +11,11 @@ const cardStyle =
   "bg-gradient-to-tr from-[#262626] to-[#1c1c1c] text-white border border-[#f5d08c]/30 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300";
 
 const AboutPage = () => {
+  // Scroll to top when page loads
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}

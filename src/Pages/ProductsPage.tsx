@@ -37,16 +37,14 @@ const initialProducts: Product[] = [
 const ProductsPage = ({ addToCart }: ProductsPageProps) => {
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     setProducts(initialProducts);
   }, []);
 
   const handleAddToCart = (product: Product) => {
     addToCart(product);
-    setToastMessage(`${product.name} added to cart!`);
-    setTimeout(() => setToastMessage(null), 2500);
   };
 
   const handleBuyNow = (product: Product) => {
@@ -61,18 +59,6 @@ const ProductsPage = ({ addToCart }: ProductsPageProps) => {
       transition={{ duration: 1.2 }}
       className="bg-gradient-to-b from-[#1f1f1f] to-[#2f2f2f] text-white min-h-screen pb-24 relative"
     >
-      {toastMessage && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.4 }}
-          className="fixed top-5 right-5 bg-[#f5d08c] text-gray-900 px-4 py-2 rounded-md shadow-lg z-50 text-sm font-medium"
-        >
-          {toastMessage}
-        </motion.div>
-      )}
-
       <h2 className="text-3xl font-semibold text-center pt-28 pb-10">
         Our Products
       </h2>

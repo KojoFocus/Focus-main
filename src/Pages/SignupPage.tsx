@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { auth } from "../firebase"; // ✅ Make sure this path points to your Firebase config
+import { auth } from "../firebase";
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -10,10 +10,12 @@ const SignupPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // 🔁 New state
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
+    setLoading(true); // ⏳ Start loading
 
     try {
       const userCredential = await createUserWithEmailAndPassword(
@@ -22,7 +24,6 @@ const SignupPage = () => {
         password
       );
 
-      // Optionally update display name
       if (auth.currentUser) {
         await updateProfile(auth.currentUser, { displayName: name });
       }
@@ -35,6 +36,8 @@ const SignupPage = () => {
       } else {
         setError("Signup failed. Try again.");
       }
+    } finally {
+      setLoading(false); // ✅ End loading
     }
   };
 
@@ -94,9 +97,14 @@ const SignupPage = () => {
 
         <button
           type="submit"
-          className="w-full bg-[#f5d08c] hover:bg-yellow-500 text-gray-900 font-bold py-3 rounded-md transition"
+          disabled={loading}
+          className={`w-full font-bold py-3 rounded-md transition ${
+            loading
+              ? "bg-[#f5d08c]/70 cursor-not-allowed text-gray-700"
+              : "bg-[#f5d08c] hover:bg-yellow-500 text-gray-900"
+          }`}
         >
-          Create Account
+          {loading ? "Creating..." : "Create Account"}
         </button>
 
         <p

@@ -48,7 +48,7 @@ const Header = ({ cartCount }: HeaderProps) => {
     });
 
     return () => unsubscribe();
-  }, [auth]); // ✅ ESLint warning resolved
+  }, [auth]);
 
   return (
     <header
@@ -59,7 +59,6 @@ const Header = ({ cartCount }: HeaderProps) => {
       }`}
     >
       <nav className="relative flex items-center justify-between px-6 py-4 lg:px-12">
-        {/* Left: Menu */}
         <button
           onClick={() => setIsSidebarOpen(true)}
           className="p-2 text-white hover:bg-white/10 rounded-md transition"
@@ -67,7 +66,6 @@ const Header = ({ cartCount }: HeaderProps) => {
           <Bars3Icon className="h-6 w-6" />
         </button>
 
-        {/* Center: Logo */}
         <div className="absolute left-1/2 transform -translate-x-1/2 pt-4 pb-1">
           <Link to="/" className="inline-block">
             <img
@@ -80,7 +78,6 @@ const Header = ({ cartCount }: HeaderProps) => {
           </Link>
         </div>
 
-        {/* Cart */}
         <div className="relative">
           <Link
             to="/cart"
@@ -96,7 +93,6 @@ const Header = ({ cartCount }: HeaderProps) => {
         </div>
       </nav>
 
-      {/* Sidebar */}
       <AnimatePresence>
         {isSidebarOpen && (
           <>
@@ -157,7 +153,7 @@ const Header = ({ cartCount }: HeaderProps) => {
             </motion.aside>
 
             <motion.div
-              className="fixed inset-0 z-40 bg-black/60"
+              className="fixed inset-0 z-60 bg-black/60 pointer-events-auto"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}

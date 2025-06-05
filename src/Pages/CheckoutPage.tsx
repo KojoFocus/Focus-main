@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
 import { getAuth } from "firebase/auth";
 import { clearCartInFirebase } from "../utils/firebaseCart";
+import { toast } from "react-hot-toast";
 import type { Product } from "../types";
 
 interface CheckoutPageProps {
@@ -19,11 +20,14 @@ const CheckoutPage = ({ cartItems, setCartItems }: CheckoutPageProps) => {
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [note, setNote] = useState("");
-  const [error, setError] = useState("");
 
   const auth = getAuth();
   const user = auth.currentUser;
   const userId = user?.uid || "guest";
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const totalPrice = cartItems.reduce((sum, item) => {
     const price =
@@ -35,7 +39,7 @@ const CheckoutPage = ({ cartItems, setCartItems }: CheckoutPageProps) => {
 
   const handleSubmit = async () => {
     if (!name || !phone || !address) {
-      alert("Please fill all fields");
+      toast.error("Please fill all fields.");
       return;
     }
 
@@ -64,14 +68,26 @@ const CheckoutPage = ({ cartItems, setCartItems }: CheckoutPageProps) => {
 
     try {
       await addDoc(collection(db, "orders"), orderPayload);
-      alert("Order placed successfully!");
+      toast.success("Order placed successfully!", {
+        style: {
+          background: "#1c1c1c",
+          color: "#f5d08c",
+          border: "1px solid #f5d08c",
+        },
+      });
       setCartItems([]);
       await clearCartInFirebase(userId);
       localStorage.removeItem(`focusCart-${userId}`);
       navigate("/my-orders");
     } catch (err) {
       console.error(err);
-      setError("Order failed. Please log in and try again.");
+      toast.error("Order failed. Please log in and try again.", {
+        style: {
+          background: "#1c1c1c",
+          color: "#f87171",
+          border: "1px solid #f87171",
+        },
+      });
     }
   };
 
@@ -107,12 +123,6 @@ const CheckoutPage = ({ cartItems, setCartItems }: CheckoutPageProps) => {
         <h2 className="text-3xl font-semibold text-center mb-8">
           Delivery Details
         </h2>
-
-        {error && (
-          <div className="text-sm text-red-500 text-center bg-red-500/10 border border-red-500/40 p-4 rounded mb-4">
-            {error}
-          </div>
-        )}
 
         <form
           onSubmit={(e) => {

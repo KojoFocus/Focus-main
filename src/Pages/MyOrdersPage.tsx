@@ -38,6 +38,10 @@ const MyOrdersPage = () => {
   const auth = getAuth();
   const user = auth.currentUser;
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const handleLogout = () => {
     auth.signOut();
     navigate("/login");
@@ -47,33 +51,28 @@ const MyOrdersPage = () => {
     const doc = new jsPDF({
       orientation: "portrait",
       unit: "mm",
-      format: [105, 148], // A6 size
+      format: [105, 148],
     });
 
     const userName = user?.displayName || user?.email || "Customer";
 
-    // Background
-    doc.setFillColor(47, 47, 47); // dark gray
+    doc.setFillColor(47, 47, 47);
     doc.rect(0, 0, 105, 148, "F");
 
-    // Add Logo (centered and resized)
     const img = new Image();
-    img.src = "/logo.png"; // ensure this is in /public
-    doc.addImage(img, "PNG", 40, 8, 25, 25); // centered horizontally
+    img.src = "/logo.png";
+    doc.addImage(img, "PNG", 40, 8, 25, 25);
 
-    // Title below logo
     doc.setTextColor("#f5d08c");
     doc.setFontSize(13);
     doc.text("Order Receipt", 52.5, 38, { align: "center" });
 
-    // Customer & Order Info
     doc.setFontSize(9);
     doc.setTextColor(255, 255, 255);
     doc.text(`Customer: ${userName}`, 8, 46);
     doc.text(`Order ID: ${order.id.slice(-6).toUpperCase()}`, 8, 52);
     doc.text(`Date: ${new Date(order.createdAt).toLocaleString()}`, 8, 58);
 
-    // Order Items Table
     const items = order.orderItems.map((item) => [
       item.name,
       item.qty.toString(),
@@ -104,26 +103,22 @@ const MyOrdersPage = () => {
 
     const finalY = (doc as jsPDFWithPlugin).lastAutoTable?.finalY || 100;
 
-    // Total
     doc.setFontSize(10);
     doc.setTextColor("#f5d08c");
     doc.text(`Total: Ghc ${order.totalPrice.toFixed(2)}`, 8, finalY + 8);
 
-    // Contact info
     doc.setFontSize(7);
     doc.setTextColor(180, 180, 180);
     doc.text("Focus Honey · Accra, Ghana", 8, finalY + 20);
     doc.text("Phone: +233 24 123 4567", 8, finalY + 25);
     doc.text("Email: info@focushoney.com", 8, finalY + 30);
 
-    // Thank you note
     doc.setFontSize(8);
     doc.setTextColor("#f5d08c");
     doc.text("Thank you for your order!", 52.5, finalY + 38, {
       align: "center",
     });
 
-    // Save
     doc.save(`FocusHoney_${order.id.slice(-6)}.pdf`);
   };
 

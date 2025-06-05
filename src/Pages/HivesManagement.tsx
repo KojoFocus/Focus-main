@@ -1,14 +1,19 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 
 const HivesManagement = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
-      className="bg-gradient-to-b from-[#1f1f1f] to-[#2f2f2f] text-white min-h-screen pb-20"
+      className="bg-gradient-to-b from-[#1f1f1f] to-[#2f2f2f] text-white min-h-screen pb-24"
     >
-      <div className="container mx-auto px-6 space-y-16 pt-32">
+      <div className="container mx-auto px-6 space-y-16 pt-40">
         {/* Title */}
         <motion.h2
           initial={{ opacity: 0, y: -20 }}

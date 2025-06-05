@@ -1,21 +1,26 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 
 const ContactPage = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1.2 }}
-      className="bg-gradient-to-b from-[#1f1f1f] to-[#2f2f2f] text-white min-h-screen pb-20"
+      className="bg-gradient-to-b from-[#1f1f1f] to-[#2f2f2f] text-white min-h-screen pb-24"
     >
-      <div className="container mx-auto px-6 space-y-16 pt-32">
+      <div className="container mx-auto px-6 space-y-20 pt-40">
         {/* Contact Form */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-4xl font-semibold text-center mb-8">
+          <h2 className="text-4xl font-semibold text-center mb-10">
             Get in Touch
           </h2>
           <form className="max-w-2xl mx-auto space-y-6">
@@ -27,7 +32,7 @@ const ContactPage = () => {
                 type="text"
                 id="name"
                 name="name"
-                className="w-full rounded-md border border-[#f5d08c]/30 bg-transparent px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#f5d08c]"
+                className="w-full rounded-md border border-[#f5d08c]/30 bg-[#1c1c1c] px-4 py-3 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#f5d08c]"
                 placeholder="Your Name"
               />
             </div>
@@ -39,7 +44,7 @@ const ContactPage = () => {
                 type="email"
                 id="email"
                 name="email"
-                className="w-full rounded-md border border-[#f5d08c]/30 bg-transparent px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#f5d08c]"
+                className="w-full rounded-md border border-[#f5d08c]/30 bg-[#1c1c1c] px-4 py-3 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#f5d08c]"
                 placeholder="Your Email"
               />
             </div>
@@ -54,16 +59,18 @@ const ContactPage = () => {
                 id="message"
                 name="message"
                 rows={5}
-                className="w-full rounded-md border border-[#f5d08c]/30 bg-transparent px-4 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#f5d08c]"
+                className="w-full rounded-md border border-[#f5d08c]/30 bg-[#1c1c1c] px-4 py-3 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#f5d08c] resize-none"
                 placeholder="Your Message"
               ></textarea>
             </div>
-            <button
-              type="submit"
-              className="bg-[#f5d08c] hover:bg-yellow-500 text-gray-900 font-semibold text-sm px-6 py-3 rounded-md transition"
-            >
-              Send Message
-            </button>
+            <div className="text-center pt-4">
+              <button
+                type="submit"
+                className="bg-[#f5d08c] hover:bg-yellow-500 text-gray-900 font-semibold text-sm px-6 py-3 rounded-md transition"
+              >
+                Send Message
+              </button>
+            </div>
           </form>
         </motion.section>
 

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import type { Product } from "../types";
@@ -14,6 +15,10 @@ const CartPage = ({
   updateQuantity,
 }: CartPageProps) => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const getNumericPrice = (price: string | number): number => {
     if (typeof price === "string") {

@@ -1,7 +1,13 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
 const HomePage = () => {
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -9,7 +15,7 @@ const HomePage = () => {
       transition={{ duration: 1.2 }}
       className="bg-gradient-to-b from-[#1f1f1f] to-[#2f2f2f] text-white min-h-screen text-center font-sans"
     >
-      <div className="relative isolate px-6 pt-1o lg:px-8 overflow-hidden">
+      <div className="relative isolate px-6 pt-10 lg:px-8 overflow-hidden">
         {/* Decorative Blob */}
         <div
           aria-hidden="true"
