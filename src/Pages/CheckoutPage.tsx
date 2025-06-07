@@ -6,6 +6,7 @@ import { db } from "../firebase";
 import { getAuth } from "firebase/auth";
 import { clearCartInFirebase } from "../utils/firebaseCart";
 import { toast } from "react-hot-toast";
+import PaystackPayment from "../components/PaystackPayment";
 import type { Product } from "../types";
 
 interface CheckoutPageProps {
@@ -20,6 +21,7 @@ const CheckoutPage = ({ cartItems, setCartItems }: CheckoutPageProps) => {
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [note, setNote] = useState("");
+  const [showPaystack, setShowPaystack] = useState(false);
 
   const auth = getAuth();
   const user = auth.currentUser;
@@ -37,57 +39,72 @@ const CheckoutPage = ({ cartItems, setCartItems }: CheckoutPageProps) => {
     return sum + price * item.quantity;
   }, 0);
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!name || !phone || !address) {
       toast.error("Please fill all fields.");
       return;
     }
+    setShowPaystack(true);
+  };
 
-    const orderPayload = {
-      userId,
-      orderItems: cartItems.map((item) => ({
-        name: item.name,
-        qty: item.quantity,
-        price:
-          typeof item.price === "string"
-            ? parseFloat(item.price.replace("Ghc ", ""))
-            : item.price,
-        image: item.image,
-        product: item.id,
-      })),
-      shippingAddress: {
-        name,
-        phone,
-        address,
-        note: note || "N/A",
-      },
-      paymentMethod: "Cash on Delivery",
-      totalPrice,
-      createdAt: serverTimestamp(),
-    };
-
+  const handlePaymentSuccess = async (reference: string) => {
     try {
-      await addDoc(collection(db, "orders"), orderPayload);
-      toast.success("Order placed successfully!", {
-        style: {
-          background: "#1c1c1c",
-          color: "#f5d08c",
-          border: "1px solid #f5d08c",
-        },
-      });
-      setCartItems([]);
-      await clearCartInFirebase(userId);
-      localStorage.removeItem(`focusCart-${userId}`);
-      navigate("/my-orders");
+      const response = await fetch(
+        "https://us-central1-focushoney-b54d5.cloudfunctions.net/verifyPayment",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ reference }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.data.status === "success") {
+        const orderPayload = {
+          userId,
+          orderItems: cartItems.map((item) => ({
+            name: item.name,
+            qty: item.quantity,
+            price:
+              typeof item.price === "string"
+                ? parseFloat(item.price.replace("Ghc ", ""))
+                : item.price,
+            image: item.image,
+            product: item.id,
+          })),
+          shippingAddress: {
+            name,
+            phone,
+            address,
+            note: note || "N/A",
+          },
+          paymentMethod: "Paystack",
+          totalPrice,
+          createdAt: serverTimestamp(),
+          status: "Processing",
+          paymentRef: reference,
+        };
+
+        await addDoc(collection(db, "orders"), orderPayload);
+        toast.success("Payment & Order successful!", {
+          style: {
+            background: "#1c1c1c",
+            color: "#f5d08c",
+            border: "1px solid #f5d08c",
+          },
+        });
+
+        setCartItems([]);
+        await clearCartInFirebase(userId);
+        localStorage.removeItem(`focusCart-${userId}`);
+        navigate("/my-orders");
+      } else {
+        toast.error("Payment verification failed.");
+      }
     } catch (err) {
       console.error(err);
-      toast.error("Order failed. Please log in and try again.", {
-        style: {
-          background: "#1c1c1c",
-          color: "#f87171",
-          border: "1px solid #f87171",
-        },
-      });
+      toast.error("Payment failed. Try again.");
     }
   };
 
@@ -182,29 +199,41 @@ const CheckoutPage = ({ cartItems, setCartItems }: CheckoutPageProps) => {
             />
           </div>
 
-          <div className="pt-4 text-center">
-            <button
-              type="submit"
-              className="inline-flex items-center bg-[#f5d08c] hover:bg-yellow-500 text-gray-900 font-semibold px-6 py-3 rounded-md transition"
-            >
-              Submit Order
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-4 h-4 ml-2"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+          {!showPaystack && (
+            <div className="pt-4 text-center">
+              <button
+                type="submit"
+                className="inline-flex items-center bg-[#f5d08c] hover:bg-yellow-500 text-gray-900 font-semibold px-6 py-3 rounded-md transition"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 8l4 4m0 0l-4 4m4-4H3"
-                />
-              </svg>
-            </button>
-          </div>
+                Submit Order
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-4 h-4 ml-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                  />
+                </svg>
+              </button>
+            </div>
+          )}
         </form>
+
+        {showPaystack && (
+          <div className="mt-6 text-center">
+            <PaystackPayment
+              email="ernestobimpeh9@gmail.com"
+              amount={totalPrice}
+              onSuccess={handlePaymentSuccess}
+            />
+          </div>
+        )}
 
         <p
           onClick={() => navigate("/cart")}
