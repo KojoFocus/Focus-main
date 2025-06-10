@@ -81,7 +81,7 @@ const Header = ({ cartCount }: HeaderProps) => {
         <div className="relative">
           <Link
             to="/cart"
-            className="p-2 text-white hover:bg-white/10 rounded-md inline-flex transition"
+            className="p-2 text-white hover:bg-white/10 rounded-md inline-flex transition relative"
           >
             <ShoppingCartIcon className="h-6 w-6" />
             {cartCount > 0 && (
@@ -96,6 +96,16 @@ const Header = ({ cartCount }: HeaderProps) => {
       <AnimatePresence>
         {isSidebarOpen && (
           <>
+            {/* Overlay for outside click */}
+            <motion.div
+              className="fixed inset-0 z-40 bg-black/60"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsSidebarOpen(false)}
+            />
+
+            {/* Sidebar */}
             <motion.aside
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
@@ -121,16 +131,25 @@ const Header = ({ cartCount }: HeaderProps) => {
                   { name: "Cart", path: "/cart" },
                   { name: "My Orders", path: "/my-orders" },
                   { name: "Contact", path: "/contact" },
-                ].map(({ name, path }) => (
-                  <Link
-                    key={name}
-                    to={path}
-                    onClick={() => setIsSidebarOpen(false)}
-                    className="block px-4 py-2 rounded-md text-white font-medium hover:bg-white/10 transition"
-                  >
-                    {name}
-                  </Link>
-                ))}
+                ].map(({ name, path }) => {
+                  const isCart = name === "Cart";
+                  return (
+                    <div key={name} className="relative">
+                      <Link
+                        to={path}
+                        onClick={() => setIsSidebarOpen(false)}
+                        className="block px-4 py-2 rounded-md text-white font-medium hover:bg-white/10 transition"
+                      >
+                        {name}
+                      </Link>
+                      {isCart && cartCount > 0 && (
+                        <span className="absolute top-2 right-4 bg-[#f5d08c] text-gray-900 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-md">
+                          {cartCount}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
 
                 <Link
                   to="/products"
@@ -144,21 +163,13 @@ const Header = ({ cartCount }: HeaderProps) => {
                   <Link
                     to="/logout"
                     onClick={() => setIsSidebarOpen(false)}
-                    className="block text-center mt-2 bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-md shadow transition"
+                    className="block text-center mt-2 bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-4 rounded-md shadow transition"
                   >
                     Logout
                   </Link>
                 )}
               </div>
             </motion.aside>
-
-            <motion.div
-              className="fixed inset-0 z-60 bg-black/60 pointer-events-auto"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsSidebarOpen(false)}
-            />
           </>
         )}
       </AnimatePresence>
