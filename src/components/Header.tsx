@@ -96,16 +96,7 @@ const Header = ({ cartCount }: HeaderProps) => {
       <AnimatePresence>
         {isSidebarOpen && (
           <>
-            {/* Overlay for outside click */}
-            <motion.div
-              className="fixed inset-0 z-40 bg-black/60"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsSidebarOpen(false)}
-            />
-
-            {/* Sidebar */}
+            {/* Sidebar - appears above overlay */}
             <motion.aside
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
@@ -123,6 +114,7 @@ const Header = ({ cartCount }: HeaderProps) => {
                   <XMarkIcon className="h-6 w-6" />
                 </button>
               </div>
+
               <div className="p-4 space-y-3">
                 {[
                   { name: "Home", path: "/" },
@@ -170,6 +162,17 @@ const Header = ({ cartCount }: HeaderProps) => {
                 )}
               </div>
             </motion.aside>
+
+            {/* Overlay - closes sidebar on outside click */}
+            <motion.div
+              key="sidebar-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setIsSidebarOpen(false)}
+              className="fixed inset-0 z-40 bg-black/60"
+            />
           </>
         )}
       </AnimatePresence>
